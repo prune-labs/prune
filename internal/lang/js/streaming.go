@@ -25,7 +25,8 @@ func AnalyzeStreaming(ctx context.Context, cfg *config.Config, handler StreamHan
 	}
 
 	collector := NewCollector(cfg)
-	allFindings := []rules.Finding{}
+	var lastCollected *Collected
+	emitted := map[string]bool{}
 
 	entriesCh := make(chan []scan.FileEntry, 1)
 	errCh := make(chan error, 1)
@@ -74,17 +75,30 @@ func AnalyzeStreaming(ctx context.Context, cfg *config.Config, handler StreamHan
 		if err != nil {
 			return nil, err
 		}
-
+		lastCollected = collected
 		findings := applyRules(cfg, collected)
-		allFindings = append(allFindings, findings...)
 		processed += len(batch)
 
 		if stream.Enabled && stream.IntervalMs > 0 && handler != nil {
-			if err := handler(findings); err != nil {
+			newFindings := make([]rules.Finding, 0, len(findings))
+			for _, finding := range findings {
+				if emitted[finding.ID] {
+					continue
+				}
+				emitted[finding.ID] = true
+				newFindings = append(newFindings, finding)
+			}
+			if len(newFindings) == 0 {
+				continue
+			}
+			if err := handler(newFindings); err != nil {
 				return nil, err
 			}
 		}
 	}
 
-	return allFindings, nil
+	if lastCollected == nil {
+		return nil, nil
+	}
+	return applyRules(cfg, lastCollected), nil
 }
