@@ -122,10 +122,6 @@ func AnalyzeStreaming(ctx context.Context, cfg *config.Config, handler StreamHan
 		return nil, err
 	}
 
-	select {
-	case result := <-resultsCh:
-		return result, nil
-	default:
-		return nil, nil
-	}
+	result := <-resultsCh
+	return result, nil
 }
