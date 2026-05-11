@@ -3,12 +3,17 @@
 BINARY_NAME=prune
 BIN_DIR=.bin
 MAIN_PATH=./cmd/prune
+VERSION ?= dev
+COMMIT := $(shell git rev-parse --short HEAD)
+DATE := $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 
 ## build: build binary locally
 build:
 	@echo "Building $(BINARY_NAME)..."
 	@mkdir -p $(BIN_DIR)
-	go build -o $(BIN_DIR)/$(BINARY_NAME) $(MAIN_PATH)
+	go build \
+		-ldflags "-s -w -X main.Version=$(VERSION) -X main.Commit=$(COMMIT) -X main.Date=$(DATE)" \
+		-o $(BIN_DIR)/$(BINARY_NAME) $(MAIN_PATH)
 	@echo "Binary created at $(BIN_DIR)/$(BINARY_NAME)"
 
 ## test: run all tests
