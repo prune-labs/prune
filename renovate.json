@@ -4,6 +4,10 @@
     "config:recommended"
   ],
   "labels": ["dependencies"],
+  "prHourlyLimit": 2,
+  "prConcurrentLimit": 5,
+  "rangeStrategy": "bump",
+  "semanticCommits": "enabled",
   "packageRules": [
     {
       "matchManagers": ["npm", "bun"],
@@ -13,9 +17,13 @@
     },
     {
       "matchManagers": ["gomod"],
-      "matchFileNames": ["go.mod"],
       "groupName": "go dependencies",
-      "automerge": false
+      "automerge": false,
+      "schedule": ["before 6am on monday"]
+    },
+    {
+      "matchPackageNames": ["github.com/smacker/go-tree-sitter"],
+      "enabled": false
     }
   ]
 }
