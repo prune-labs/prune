@@ -10,12 +10,6 @@
   "semanticCommits": "enabled",
   "packageRules": [
     {
-      "matchManagers": ["npm", "bun"],
-      "matchFileNames": ["docs/**"],
-      "groupName": "docs JS dependencies",
-      "automerge": false
-    },
-    {
       "matchManagers": ["gomod"],
       "groupName": "go dependencies",
       "automerge": false,
